@@ -1,0 +1,66 @@
+<!-- analytics_dashboard/templates/dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Social Media Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Add the Google Analytics script here -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GGJB8HJWXC');
+    </script>
+</head>
+<body>
+    <h1>Social Media Analytics Dashboard</h1>
+
+    <input type="text" id="datePicker" placeholder="Select date range">
+
+    <canvas id="myChart" width="400" height="200"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            flatpickr("#datePicker", {
+                mode: "range",
+                onChange: function (selectedDates, dateStr, instance) {
+                    // Fetch data based on selected date range
+                    const startDate = selectedDates[0];
+                    const endDate = selectedDates[1];
+                    fetch(`/get_chart_data/?start_date=${startDate}&end_date=${endDate}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Update the chart with the new data
+                            const ctx = document.getElementById('myChart').getContext('2d');
+                            const myChart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: data.labels,
+                                    datasets: data.datasets,
+                                },
+                            });
+                        });
+                },
+            });
+
+            // Initial data fetch and chart rendering
+            fetch('/get_chart_data/')
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('myChart').getContext('2d');
+                    const myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,
+                            datasets: data.datasets,
+                        },
+                    });
+                });
+        });
+    </script>
+</body>
+</html>
